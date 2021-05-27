@@ -55,10 +55,10 @@ public class PrefabAssetManager
 
 #pragma warning disable 618
         // we're keeping World.Active until we can properly remove them all
-        var defaultWorld = World.Active;
+        var defaultWorld = World.DefaultGameObjectInjectionWorld;
         try
         {
-            World.Active = world;
+            World.DefaultGameObjectInjectionWorld = world;
 #pragma warning restore 618
             if (prefab.GetComponent<GameObjectEntity>() != null)
             {
@@ -84,7 +84,7 @@ public class PrefabAssetManager
         {
 #pragma warning disable 618
             // we're keeping World.Active until we can properly remove them all
-            World.Active = defaultWorld;
+            World.DefaultGameObjectInjectionWorld = defaultWorld;
 #pragma warning restore 618
         }
     }
@@ -132,11 +132,15 @@ public class PrefabAssetManager
         {
 #pragma warning disable 618
             // we're keeping World.Active until we can properly remove them all
-            var defaultWorld = World.Active;
+            var defaultWorld = World.DefaultGameObjectInjectionWorld;
             try
             {
-                World.Active = world;
-                entityPrefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(prefab, world);
+                World.DefaultGameObjectInjectionWorld = world;
+                entityPrefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(prefab, new GameObjectConversionSettings
+                {
+                    DestinationWorld = defaultWorld,
+                    ConversionFlags = GameObjectConversionUtility.ConversionFlags.AssignName,
+                });
                 m_EntityPrefabs.Add(tuple,entityPrefab);
 
 #if UNITY_EDITOR
@@ -145,7 +149,7 @@ public class PrefabAssetManager
             }
             finally
             {
-                World.Active = defaultWorld;
+                World.DefaultGameObjectInjectionWorld = defaultWorld;
             }
 #pragma warning restore 618
         }
